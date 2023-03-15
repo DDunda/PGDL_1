@@ -17,6 +17,8 @@ public class PlayerMovement : MonoBehaviour
     public float jumpCooldown;
     public float airMultiplier;
     bool readyToJump;
+    public int airJumpsMax;
+    private int airJumps;
 
     [Header("Keybinds")]
     public KeyCode jumpKey = KeyCode.Space;
@@ -88,6 +90,18 @@ public class PlayerMovement : MonoBehaviour
         // when to jump
         if(Input.GetKey(jumpKey) && readyToJump && grounded)
         {
+            airJumps = airJumpsMax;
+            readyToJump = false;
+
+            Jump();
+
+            Invoke(nameof(ResetJump), jumpCooldown);
+        }
+        
+        // when to double jump
+        if(Input.GetKey(jumpKey) && readyToJump && airJumps > 0)
+        {
+            airJumps--;
             readyToJump = false;
 
             Jump();

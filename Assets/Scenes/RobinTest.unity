@@ -942,6 +942,7 @@ MonoBehaviour:
   jumpForce: 6
   jumpCooldown: 0.25
   airMultiplier: 0.1
+  airJumpsMax: 1
   jumpKey: 32
   sprintKey: 304
   playerHeight: 2
