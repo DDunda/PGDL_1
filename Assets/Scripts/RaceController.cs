@@ -8,56 +8,33 @@ public class RaceController : MonoBehaviour
 	static float time = 0;
 	static bool racing = false;
 
-	public static Checkpoint first;
-	public static Checkpoint last;
-
 	public static void Restart()
 	{
-		foreach (var c in GameObject.FindGameObjectsWithTag("Checkpoint"))
-		{
-			c.GetComponent<Checkpoint>().Disable();
-		}
-
-		first.Enable();
 		time = 0;
 		racing = false;
+
+		if (CheckpointController.count == 0)
+			return;
+
+		foreach(var c in CheckpointController.checkpoints) {
+			c.Disable();
+		}
+
+		CheckpointController.first.Enable();
 	}
 
 	public static void StartTime()
 	{
+		if(CheckpointController.count == 0) return;
 		time = 0;
 		racing = true;
 	}
 
 	public static void EndTime()
 	{
-		first.Enable();
+		if(CheckpointController.count == 0) return;
+		CheckpointController.first.Enable();
 		racing = false;
-	}
-
-	public static void AddCheckPoint(Checkpoint c)
-	{
-		last.next = c;
-		last.endIcon.SetActive(false);
-		last.text.gameObject.SetActive(true);
-		c.index = last.index + 1;
-		last = c;
-	}
-
-	private void Start()
-	{
-		foreach (var c in GameObject.FindGameObjectsWithTag("Checkpoint"))
-		{
-			var chk = c.GetComponent<Checkpoint>();
-			if(chk.index == 0)
-			{
-				first = chk;
-			}
-			if(chk.next == null)
-			{
-				last = chk;
-			}
-		}
 	}
 
 	void Update()

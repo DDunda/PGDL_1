@@ -39,7 +39,8 @@ public class EditorController : MonoBehaviour {
 	private Vector2 lastMousePos;
 
 	[Header("Editing")]
-	public float heightScrollSensitivity;
+	public float heightIncrement = 0.25f;
+	public LayerMask checkpointLayer;
 
 	private Checkpoint holding = null;
 
@@ -105,7 +106,11 @@ public class EditorController : MonoBehaviour {
 		if (Input.GetMouseButtonDown(0))
 		{
 			Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-			Debug.DrawRay(ray.origin, ray.direction * 10, Color.yellow);
+    		RaycastHit hit;
+
+			if(Physics.Raycast(ray, out hit, Mathf.Infinity, checkpointLayer)) {
+				Debug.Log("Hit");
+			}
 		}
 	}
 

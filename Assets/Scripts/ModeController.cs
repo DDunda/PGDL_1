@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ModeController : MonoBehaviour {
@@ -43,10 +44,7 @@ public class ModeController : MonoBehaviour {
 				playUI.SetActive(false);
 				playCamera.SetActive(false);
 
-				foreach (var c in GameObject.FindGameObjectsWithTag("Checkpoint"))
-				{
-					c.GetComponent<Checkpoint>().Show(true);
-				}
+				CheckpointController.SetVisibilityAll(true);
 				break;
 
 			case GameMode.PLAY:
@@ -67,6 +65,10 @@ public class ModeController : MonoBehaviour {
 
 	void Start()
     {
+		foreach(var c in GameObject.FindGameObjectsWithTag("Checkpoint").Select(x => x.GetComponent<Checkpoint>()).OrderBy(x => x.index))
+		{
+			CheckpointController.AppendCheckpoint(c);
+		}
 		SetMode(startMode);
 	}
 }

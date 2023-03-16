@@ -23,14 +23,14 @@ class EditorControllerEditor : Editor {
 		Vector3 size = cam.maxBounds - cam.minBounds;
 
 		Handles.DrawWireCube(center + cam.boundsOffset, size);
-		cam.maxBounds.y = Mathf.Max(cam.minBounds.y, Slider(0,new Vector3(center.x, cam.maxBounds.y, center.z), Vector3.up  ).y);
-		cam.minBounds.y = Mathf.Min(cam.maxBounds.y, Slider(1,new Vector3(center.x, cam.minBounds.y, center.z), Vector3.down).y);
+		cam.maxBounds.y = Mathf.Max(cam.minBounds.y, Slider(1,new Vector3(center.x, cam.maxBounds.y, center.z), Vector3.up  ).y);
+		cam.minBounds.y = Mathf.Min(cam.maxBounds.y, Slider(2,new Vector3(center.x, cam.minBounds.y, center.z), Vector3.down).y);
 
-		cam.maxBounds.x = Mathf.Max(cam.minBounds.x, Slider(2,new Vector3(cam.maxBounds.x, center.y, center.z), Vector3.right).x);
-		cam.minBounds.x = Mathf.Min(cam.maxBounds.x, Slider(3,new Vector3(cam.minBounds.x, center.y, center.z), Vector3.left ).x);
+		cam.maxBounds.x = Mathf.Max(cam.minBounds.x, Slider(3,new Vector3(cam.maxBounds.x, center.y, center.z), Vector3.right).x);
+		cam.minBounds.x = Mathf.Min(cam.maxBounds.x, Slider(4,new Vector3(cam.minBounds.x, center.y, center.z), Vector3.left ).x);
 
-		cam.maxBounds.z = Mathf.Max(cam.minBounds.z, Slider(4,new Vector3(center.x, center.y, cam.maxBounds.z), Vector3.forward).z);
-		cam.minBounds.z = Mathf.Min(cam.maxBounds.z, Slider(5,new Vector3(center.x, center.y, cam.minBounds.z), Vector3.back   ).z);
+		cam.maxBounds.z = Mathf.Max(cam.minBounds.z, Slider(5,new Vector3(center.x, center.y, cam.maxBounds.z), Vector3.forward).z);
+		cam.minBounds.z = Mathf.Min(cam.maxBounds.z, Slider(6,new Vector3(center.x, center.y, cam.minBounds.z), Vector3.back   ).z);
 
 		cam.boundsOffset = Handles.PositionHandle(cam.boundsOffset, Quaternion.identity);
 

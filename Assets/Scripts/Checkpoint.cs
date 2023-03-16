@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
-	public uint index = 0;
+	public int index = 0;
+	[HideInInspector]
 	public Checkpoint next = null;
 	public bool active = false;
 
@@ -15,36 +16,43 @@ public class Checkpoint : MonoBehaviour
 	public GameObject sprite;
 	public SphereCollider pointCollider;
 
+	public bool isFirst { get => this == CheckpointController.first; }
+	public bool isLast { get => this == CheckpointController.last; }
+
 	public void SetHeight(float h)
 	{
 		pointCollider.center = Vector3.up * h;
 		sprite.transform.localPosition = Vector3.up * h;
 	}
 
-	public void Show(bool s)
+	public void UpdateIcon()
 	{
-		if (!s)
-		{
-			sprite.SetActive(false);
-			return;
-		}
-
 		text.text = $"{index}";
+
 		startIcon.SetActive(false);
 		endIcon.SetActive(false);
 		text.gameObject.SetActive(false);
 
-		if (index == 0)
+		if(CheckpointController.count == 1)
+		{
+			return; // Empty icon when both start and end
+		} else if (isFirst)
 		{
 			startIcon.SetActive(true);
-		} else if (next == null)
+		} else if (isLast)
 		{
 			endIcon.SetActive(true);
 		} else
 		{
 			text.gameObject.SetActive(true);
 		}
-		sprite.SetActive(true);
+	}
+
+	public void Show(bool s)
+	{
+		if (s) UpdateIcon();
+
+		sprite.SetActive(s);
 	}
 
 	public void Disable()
@@ -66,17 +74,22 @@ public class Checkpoint : MonoBehaviour
 
 		Disable();
 
-		if (index == 0)
-		{
-			RaceController.StartTime();
-		}
-
-		if (next == null)
+		if (isLast)
 		{
 			RaceController.EndTime();
 			return;
 		}
 
+		if (isFirst)
+		{
+			RaceController.StartTime();
+		}
+
 		next.Enable();
+	}
+
+	private void OnDestroy()
+	{
+		CheckpointController.RemoveCheckpoint(this);
 	}
 }
