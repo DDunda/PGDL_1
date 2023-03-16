@@ -704,7 +704,7 @@ GameObject:
   - component: {fileID: 1196042530}
   - component: {fileID: 1196042529}
   - component: {fileID: 1196042528}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: AnglePlane (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -802,7 +802,7 @@ GameObject:
   - component: {fileID: 1251814572}
   - component: {fileID: 1251814571}
   - component: {fileID: 1251814570}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: AnglePlane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
