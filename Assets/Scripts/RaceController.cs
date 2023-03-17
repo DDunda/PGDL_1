@@ -5,12 +5,29 @@ using UnityEngine;
 public class RaceController : MonoBehaviour
 {
 	public TMPro.TextMeshProUGUI text;
+	public KeyCode respawnKey;
 	static float time = 0;
 	static bool racing = false;
 
+	public static GameObject player {
+		get {
+			_player = _player ?? GameObject.FindGameObjectWithTag("Player");
+			return _player;
+		}
+	}
+	public static GameObject spawnpoint {
+		get {
+			_spawnpoint = _spawnpoint ?? GameObject.FindGameObjectWithTag("Spawnpoint");
+			return _spawnpoint;
+		}
+	}
+
+	private static GameObject _player = null;
+	private static GameObject _spawnpoint = null;
+
 	public static void Restart()
 	{
-		time = 0;
+		time = -1;
 		racing = false;
 
 		if (CheckpointController.count == 0)
@@ -37,11 +54,33 @@ public class RaceController : MonoBehaviour
 		racing = false;
 	}
 
+	public static void RespawnPlayer()
+	{
+		player.transform.position = spawnpoint.transform.position;
+		player.transform.rotation = spawnpoint.transform.rotation;
+		Restart();
+	}
+
+	private void OnEnable()
+	{
+		CheckpointController.SetTriggerAll(true);
+		Restart();
+	}
+
 	void Update()
 	{
+		if(Input.GetKeyDown(respawnKey)) {
+			RespawnPlayer();
+		}
+
+		if (time == -1) {
+			time = 0;
+			text.text = "Time: 0.000s";
+		}
+
 		if(!racing) return;
 
 		time += Time.deltaTime;
-		text.text = $"Time: {time:0.000}s";
+		text.text = "Time: " + (time >= 60 ? Mathf.FloorToInt(time / 60).ToString() + "m " : "") + $"{time % 60:0.000}s";
 	}
 }

@@ -12,18 +12,16 @@ public class ModeController : MonoBehaviour {
     };
 
 	public GameMode startMode;
+	public KeyCode toggleModeKey;
 
 	[Header("Edit Mode")]
 	public EditorController editorController;
-	public GameObject editorUI;
-	public GameObject editorCamera;
 
 	[Header("Play Mode")]
 	public RaceController playController;
 	public GameObject playUI;
 	public GameObject playCamera;
-	public GameObject player;
-	public GameObject spawnpoint;
+	public PlayerMovement playerMovement;
 
 	private GameMode _mode = GameMode.NONE;
 
@@ -36,31 +34,28 @@ public class ModeController : MonoBehaviour {
 		switch (mode)
 		{
 			case GameMode.EDIT:
-				player.SetActive(false);
-
-				editorUI.SetActive(true);
-				editorCamera.SetActive(true);
-
+				playController.enabled = false;
+				playerMovement.enabled = false;
 				playUI.SetActive(false);
 				playCamera.SetActive(false);
 
-				CheckpointController.SetVisibilityAll(true);
+				editorController.enabled = true;
 				break;
 
 			case GameMode.PLAY:
-				player.transform.position = spawnpoint.transform.position;
-				player.transform.rotation = spawnpoint.transform.rotation;
-				player.SetActive(true);
+				editorController.enabled = false;
 
-				editorUI.SetActive(false);
-				editorCamera.SetActive(false);
-
+				playController.enabled = true;
+				playerMovement.enabled = true;
 				playUI.SetActive(true);
 				playCamera.SetActive(true);
-
-				RaceController.Restart();
 				break;
 		}
+	}
+
+	public void ToggleMode()
+	{
+		SetMode(_mode switch { GameMode.EDIT => GameMode.PLAY, GameMode.PLAY => GameMode.EDIT, _ => GameMode.EDIT });
 	}
 
 	void Start()
@@ -69,6 +64,14 @@ public class ModeController : MonoBehaviour {
 		{
 			CheckpointController.AppendCheckpoint(c);
 		}
+		RaceController.RespawnPlayer();
 		SetMode(startMode);
+	}
+
+	private void Update()
+	{
+		if(Input.GetKeyDown(toggleModeKey)) {
+			ToggleMode();
+		}
 	}
 }

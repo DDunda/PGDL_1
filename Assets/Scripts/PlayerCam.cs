@@ -14,9 +14,6 @@ public class PlayerCam : MonoBehaviour
 
     private void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
         yRotation = transform.eulerAngles.y;
         xRotation = transform.eulerAngles.x;
     }
@@ -35,5 +32,17 @@ public class PlayerCam : MonoBehaviour
         // rotate cam and orientation
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
         orientation.rotation = Quaternion.Euler(0, yRotation, 0);
+    }
+
+    private void OnEnable()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    private void OnDisable()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 }
