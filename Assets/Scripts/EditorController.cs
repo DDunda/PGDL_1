@@ -1,20 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 using UnityEngine;
 
 public class EditorController : MonoBehaviour
 {
-	[Header("Editor objects")]
-	public Transform pivot;
-	public bool freecamMode = true;
-	public Camera freeCam;
-	public GameObject freeCamObj;
-	public GameObject playerCam;
-	public GameObject player;
-	public PlayerMovement playerMovement;
-	public GameObject UI;
-	public Transform spawnpoint;
-
 	[Header("Keybinds")]
 	public KeyCode modiferKey = KeyCode.LeftControl;
 	public KeyCode deleteKey = KeyCode.Delete;
@@ -23,6 +13,7 @@ public class EditorController : MonoBehaviour
 	public KeyCode respawnKey;
 
 	[Header("Movement Options")]
+	public bool freecamMode = true;
 	public float mouseSensitivity = 4;
 	public float zoomStrength;
 
@@ -55,15 +46,13 @@ public class EditorController : MonoBehaviour
 
 	[Header("Freecam Editing")]
 	public float heightIncrement = 0.25f;
+	public float posAccuracy = 16;
 	public LayerMask checkpointLayer;
 
 	private Checkpoint _holding = null;
 	private Vector3 _pickupOffset;
 	private Plane _dragPlane;
 	private float _height;
-
-	[Header("Player Editing")]
-	public Transform checkpointOrigin;
 
 	private void Start()
 	{
@@ -75,14 +64,14 @@ public class EditorController : MonoBehaviour
 		CheckpointController.SetVisibilityAll(true);
 		CheckpointController.SetTriggerAll(false);
 
-		UI.SetActive(true);
+		Controller.editorUI.SetActive(true);
 		SetFreeCam(freecamMode);
 	}
 
 	private void OnDisable()
 	{
-		UI.SetActive(false);
-		freeCamObj.SetActive(false);
+		Controller.editorUI.SetActive(false);
+		Controller.freeCamObj.SetActive(false);
 
 		_holding = null;
 	}
@@ -96,9 +85,9 @@ public class EditorController : MonoBehaviour
 	{
 		freecamMode = enable;
 
-		freeCamObj.SetActive(enable);
-		playerCam.SetActive(!enable);
-		playerMovement.enabled = !enable;
+		Controller.freeCamObj.SetActive(enable);
+		Controller.playerCamObj.SetActive(!enable);
+		Controller.playerMovement.enabled = !enable;
 	}
 
 	void CamMovement()
@@ -116,13 +105,13 @@ public class EditorController : MonoBehaviour
 		Vector3 MB = maxBounds + boundsOffset;
 
 		// Check if moving into wall
-		moveAxis = (Vector3.Min(Vector3.Max(pivot.position + moveAxis * 0.1f, mB), MB) - pivot.position) * 10f;
+		moveAxis = (Vector3.Min(Vector3.Max(Controller.editorCamPivot.position + moveAxis * 0.1f, mB), MB) - Controller.editorCamPivot.position) * 10f;
 
 		if (moveAxis.magnitude == 0)
 			return;
 
-		pivot.position += moveAxis.normalized * GetSpeed() * Time.deltaTime;
-		pivot.position = Vector3.Min(Vector3.Max(pivot.position, mB), MB);
+		Controller.editorCamPivot.position += moveAxis.normalized * GetSpeed() * Time.deltaTime;
+		Controller.editorCamPivot.position = Vector3.Min(Vector3.Max(Controller.editorCamPivot.position, mB), MB);
 	}
 
 	void CamRotation()
@@ -134,7 +123,7 @@ public class EditorController : MonoBehaviour
 		}
 		rot.x = Mathf.Repeat(rot.x, 360);
 		rot.y = Mathf.Clamp(rot.y, minPitch, maxPitch);
-		pivot.transform.eulerAngles = new Vector3(rot.y, rot.x);
+		Controller.editorCamPivot.eulerAngles = new Vector3(rot.y, rot.x);
 	}
 
 	void CamZoom()
@@ -144,12 +133,23 @@ public class EditorController : MonoBehaviour
 
 		distance *= Mathf.Pow(2, -Input.mouseScrollDelta.y * zoomStrength);
 		distance = Mathf.Clamp(distance, minD, maxD);
-		freeCam.transform.localPosition = new Vector3(0, 0, -distance);
+		Controller.freeCam.transform.localPosition = new Vector3(0, 0, -distance);
+	}
+
+	Vector3 Snap(Vector3 v)
+	{
+		v.x = Mathf.Round(v.x * posAccuracy) / posAccuracy;
+		v.y = Mathf.Round(v.y * posAccuracy) / posAccuracy;
+		v.z = Mathf.Round(v.z * posAccuracy) / posAccuracy;
+		return v;
 	}
 
 	void TryEdit()
 	{
-		Ray ray = freeCam.ScreenPointToRay(Input.mousePosition);
+		if (EventSystem.current.IsPointerOverGameObject())
+			return;
+
+		Ray ray = Controller.freeCam.ScreenPointToRay(Input.mousePosition);
 		if (Input.GetKeyDown(deleteKey)) {
 			if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, checkpointLayer)) {
 				Destroy(hit.transform.gameObject);
@@ -160,16 +160,18 @@ public class EditorController : MonoBehaviour
 				if ((1 << hit.transform.gameObject.layer & checkpointLayer) != 0) {
 					_holding = hit.transform.gameObject.GetComponent<Checkpoint>();
 				} else if(Input.GetKey(modiferKey)) {
-					_holding = CheckpointController.PrependCheckpoint(hit.point);
+					_holding = CheckpointController.PrependCheckpoint(Snap(hit.point));
 				} else {
-					_holding = CheckpointController.AppendCheckpoint(hit.point);
+					_holding = CheckpointController.AppendCheckpoint(Snap(hit.point));
 				}
 
 				_dragPlane = new Plane(Vector3.up, hit.point);
 				_pickupOffset = hit.point - _holding.transform.position;
 				_height = _holding.GetHeight().height;
+
+				RaceController.times.Clear();
 			}
-		} else if (Input.GetMouseButtonUp(0)) {
+		} else if (Input.GetMouseButtonUp(0) || (_holding && !Input.GetMouseButton(0))) {
 			_holding = null;
 		} else if (_holding) {
 			if (_dragPlane.Raycast(ray, out float d)) {
@@ -180,6 +182,8 @@ public class EditorController : MonoBehaviour
 			_height = _height + Input.mouseScrollDelta.y * heightIncrement;
 			if (_holding.SetHeight(_height))
 				_height = Mathf.Max(0, _height);
+
+			_holding.transform.position = Snap(_holding.transform.position);
 		}
 	}
 
@@ -199,19 +203,21 @@ public class EditorController : MonoBehaviour
 	void PlayercamUpdate()
 	{
 		if(Input.GetKeyDown(addKey)) {
-			if(Input.GetKey(modiferKey)) {
-				CheckpointController.PrependCheckpoint(checkpointOrigin.position);
+			if (Input.GetKey(modiferKey)) {
+				CheckpointController.PrependCheckpoint(Snap(Controller.playerCheckpointOrigin.position));
 			} else {
-				CheckpointController.AppendCheckpoint(checkpointOrigin.position);
+				CheckpointController.AppendCheckpoint(Snap(Controller.playerCheckpointOrigin.position));
 			}
 		}
 		if(Input.GetKeyDown(respawnKey)) {
 			if (Input.GetKey(modiferKey)) {
-				spawnpoint.position = player.transform.position;
-				spawnpoint.rotation = playerMovement.orientation.transform.rotation;
+				Controller.spawnpoint.position = Snap(Controller.player.transform.position);
+				Controller.spawnpoint.rotation = Controller.playerCamObj.transform.rotation;
 			} else {
-				player.transform.position = spawnpoint.transform.position;
-				player.transform.rotation = spawnpoint.transform.rotation;
+				Controller.player.transform.position = Controller.spawnpoint.transform.position;
+				Vector2 v = Controller.ToEuler(Controller.spawnpoint.rotation);
+				Controller.playerCamScript.xRotation = v.x;
+				Controller.playerCamScript.yRotation = v.y;
 			}
 		}
 		if (Input.GetKeyDown(toggleKey)) {

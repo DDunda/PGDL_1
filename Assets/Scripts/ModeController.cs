@@ -19,9 +19,6 @@ public class ModeController : MonoBehaviour {
 
 	[Header("Play Mode")]
 	public RaceController playController;
-	public GameObject playUI;
-	public GameObject playCamera;
-	public PlayerMovement playerMovement;
 
 	private GameMode _mode = GameMode.NONE;
 
@@ -35,9 +32,9 @@ public class ModeController : MonoBehaviour {
 		{
 			case GameMode.EDIT:
 				playController.enabled = false;
-				playerMovement.enabled = false;
-				playUI.SetActive(false);
-				playCamera.SetActive(false);
+				Controller.playerMovement.enabled = false;
+				Controller.playUI.SetActive(false);
+				Controller.playerCamObj.SetActive(false);
 
 				editorController.enabled = true;
 				break;
@@ -46,9 +43,9 @@ public class ModeController : MonoBehaviour {
 				editorController.enabled = false;
 
 				playController.enabled = true;
-				playerMovement.enabled = true;
-				playUI.SetActive(true);
-				playCamera.SetActive(true);
+				Controller.playerMovement.enabled = true;
+				Controller.playUI.SetActive(true);
+				Controller.playerCamObj.SetActive(true);
 				break;
 		}
 	}
@@ -64,6 +61,8 @@ public class ModeController : MonoBehaviour {
 		{
 			CheckpointController.AppendCheckpoint(c);
 		}
+		Controller.spawnpoint.position = Controller.player.transform.position;
+		Controller.spawnpoint.rotation = Controller.playerCamObj.transform.rotation;
 		RaceController.RespawnPlayer();
 		SetMode(startMode);
 	}

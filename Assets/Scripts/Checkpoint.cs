@@ -31,7 +31,7 @@ public class Checkpoint : MonoBehaviour
 
 		float[] surfaces = (from s in Physics.RaycastAll(new Vector3(origin.x, origin.y + 20, origin.z), Vector3.down, 20, groundLayer)
 						   where _inside.Contains(s.collider) && s.point.y > origin.y
-						   orderby s.point.y
+						   orderby s.point.y descending
 						   select s.point.y).ToArray();
 
 		// Check if inside of an object; we want to warp to the surface

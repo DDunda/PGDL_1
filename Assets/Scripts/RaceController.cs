@@ -4,26 +4,11 @@ using UnityEngine;
 
 public class RaceController : MonoBehaviour
 {
-	public TMPro.TextMeshProUGUI text;
+	public KeyCode modiferKey = KeyCode.LeftControl;
 	public KeyCode respawnKey;
 	static float time = 0;
 	static bool racing = false;
-
-	public static GameObject player {
-		get {
-			_player = _player ?? GameObject.FindGameObjectWithTag("Player");
-			return _player;
-		}
-	}
-	public static GameObject spawnpoint {
-		get {
-			_spawnpoint = _spawnpoint ?? GameObject.FindGameObjectWithTag("Spawnpoint");
-			return _spawnpoint;
-		}
-	}
-
-	private static GameObject _player = null;
-	private static GameObject _spawnpoint = null;
+	public static SortedSet<float> times = new();
 
 	public static void Restart()
 	{
@@ -52,12 +37,15 @@ public class RaceController : MonoBehaviour
 		if(CheckpointController.count == 0) return;
 		CheckpointController.first.Enable();
 		racing = false;
+		times.Add(time);
 	}
 
 	public static void RespawnPlayer()
 	{
-		player.transform.position = spawnpoint.transform.position;
-		player.transform.rotation = spawnpoint.transform.rotation;
+		Controller.player.transform.position = Controller.spawnpoint.transform.position;
+		Vector2 v = Controller.ToEuler(Controller.spawnpoint.rotation);
+		Controller.playerCamScript.xRotation = v.x;
+		Controller.playerCamScript.yRotation = v.y;
 		Restart();
 	}
 
@@ -70,17 +58,22 @@ public class RaceController : MonoBehaviour
 	void Update()
 	{
 		if(Input.GetKeyDown(respawnKey)) {
-			RespawnPlayer();
+			if (Input.GetKey(modiferKey)) {
+				Controller.spawnpoint.position = Controller.player.transform.position;
+				Controller.spawnpoint.rotation = Controller.playerCamObj.transform.rotation;
+			} else {
+				RespawnPlayer();
+			}
 		}
 
 		if (time == -1) {
 			time = 0;
-			text.text = "Time: 0.000s";
+			Controller.timer.text = "Time: 0.000s";
 		}
 
 		if(!racing) return;
 
 		time += Time.deltaTime;
-		text.text = "Time: " + (time >= 60 ? Mathf.FloorToInt(time / 60).ToString() + "m " : "") + $"{time % 60:0.000}s";
+		Controller.timer.text = "Time: " + (time >= 60 ? Mathf.FloorToInt(time / 60).ToString() + "m " : "") + $"{time % 60:0.000}s";
 	}
 }
