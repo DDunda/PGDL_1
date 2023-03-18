@@ -229,6 +229,8 @@ MonoBehaviour:
   sensX: 1000
   sensY: 1000
   orientation: {fileID: 6753724847625507}
+  xRotation: 0
+  yRotation: 0
 --- !u!1 &6753726010793659
 GameObject:
   m_ObjectHideFlags: 0
@@ -299,7 +301,7 @@ MonoBehaviour:
   groundDrag: 5
   jumpForce: 6
   jumpCooldown: 0.25
-  airMultiplier: 0.3
+  airMultiplier: 0.3125
   airJumpsMax: 1
   jumpKey: 32
   sprintKey: 304

@@ -160,7 +160,7 @@ public class CheckpointController : MonoBehaviour
 			return c;
 		}
 
-		c.next = checkpoints[1];
+		c.next = first;
 		_checkpoints.Insert(0, c);
 
 		for (int i = 0; i < count; i++) {
