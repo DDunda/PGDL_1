@@ -13,6 +13,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] public bool canJump = true;
     [SerializeField] public bool canExtraJump = true;
     [SerializeField] public bool willSlideOnSlopes = true;
+    [SerializeField] public bool canMoveInAir = true;
 
     [Header("Functional Options")]
     [SerializeField] public KeyCode sprintKey = KeyCode.LeftShift;
@@ -21,13 +22,14 @@ public class FirstPersonController : MonoBehaviour
     [Header("Movement Parameters")]
     [SerializeField] public float walkSpeed = 3.0f;
     [SerializeField] public float sprintSpeed = 6.0f;
-    [SerializeField] public float slopeSpeed = 3.5f;
+    [SerializeField] public float slopeSpeed = 4.5f;
 
     [Header("Jumping Parameters")]
     [SerializeField] public float jumpForce = 8.0f;
     [SerializeField] public int airJumpsMax = 1;
     private int airJumps;
-    [SerializeField] public float gravity = 20.0f;
+    [SerializeField] public float airMultiplier = 1.0f;
+    [SerializeField] public float gravity = 25.0f;
 
     [Header("Look Parameters")]
     [SerializeField, Range(1, 10)] public float lookSpeedX = 2.0f;
@@ -90,7 +92,15 @@ public class FirstPersonController : MonoBehaviour
 
     private void HandleMovementInput()
     {
-        currentInput = new Vector2((IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Vertical"), (IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Horizontal"));
+        if(characterController.isGrounded)
+        {
+            currentInput = new Vector2((IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Vertical"), (IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Horizontal"));
+        }
+        else if(canMoveInAir) //in air
+        {
+            //currentInput = new Vector2((IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Vertical"), (IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Horizontal"));
+            //currentInput = new Vector2((IsSprinting ? sprintSpeed : walkSpeed) * airMultiplier * Input.GetAxis("Vertical"), (IsSprinting ? sprintSpeed : walkSpeed) * airMultiplier * Input.GetAxis("Horizontal"));
+        }
 
         float moveDirectionY = moveDirection.y;
         moveDirection = (transform .TransformDirection(Vector3.forward) * currentInput.x) + (transform .TransformDirection(Vector3.right) * currentInput.y);
@@ -107,14 +117,15 @@ public class FirstPersonController : MonoBehaviour
 
     private void HandleJump()
     {
-        if (ShouldJump)
-        {
-            airJumps = airJumpsMax;
-            moveDirection.y = jumpForce;
-        }
-        else if(ShouldJump && airJumps > 0 && canExtraJump)
+        if (ShouldJump && airJumps > 0 && canExtraJump)
         {
             airJumps--;
+            moveDirection.y = jumpForce;
+            
+        }
+        else if(ShouldJump)
+        {
+            airJumps = airJumpsMax;
             moveDirection.y = jumpForce;
         }
     }
