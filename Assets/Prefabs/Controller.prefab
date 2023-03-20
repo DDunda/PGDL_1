@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5804157554156398587}
   - component: {fileID: 5003411901422885072}
   - component: {fileID: 5804157554156398535}
+  - component: {fileID: 5718311857734044085}
   - component: {fileID: 5804157554156398533}
   - component: {fileID: 5804157554156398532}
   - component: {fileID: 5804157554156398534}
@@ -54,6 +55,7 @@ MonoBehaviour:
   _freeCamObj: {fileID: 0}
   _editorUI: {fileID: 0}
   _playUI: {fileID: 0}
+  _level: {fileID: 0}
 --- !u!114 &5804157554156398535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70,6 +72,18 @@ MonoBehaviour:
   checkpointGroup: {fileID: 4934822896958719527}
   playLayer: 11
   editLayer: 12
+--- !u!114 &5718311857734044085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5804157554156398585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39c5cf26cb443074882d73eba364a311, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &5804157554156398533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,6 +146,7 @@ MonoBehaviour:
   rot: {x: 0, y: 20}
   distance: 10
   heightIncrement: 0.25
+  posAccuracy: 16
   checkpointLayer:
     serializedVersion: 2
     m_Bits: 6144
