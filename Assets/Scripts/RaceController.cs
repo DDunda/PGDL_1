@@ -4,67 +4,76 @@ using UnityEngine;
 
 public class RaceController : MonoBehaviour
 {
-	public TMPro.TextMeshProUGUI text;
+	public KeyCode modiferKey = KeyCode.LeftControl;
+	public KeyCode respawnKey;
 	static float time = 0;
 	static bool racing = false;
-
-	public static Checkpoint first;
-	public static Checkpoint last;
+	public static SortedSet<float> times = new();
 
 	public static void Restart()
 	{
-		foreach (var c in GameObject.FindGameObjectsWithTag("Checkpoint"))
-		{
-			c.GetComponent<Checkpoint>().Disable();
+		time = -1;
+		racing = false;
+
+		if (CheckpointController.count == 0)
+			return;
+
+		foreach(var c in CheckpointController.checkpoints) {
+			c.Disable();
 		}
 
-		first.Enable();
-		time = 0;
-		racing = false;
+		CheckpointController.first.Enable();
 	}
 
 	public static void StartTime()
 	{
+		if(CheckpointController.count == 0) return;
 		time = 0;
 		racing = true;
 	}
 
 	public static void EndTime()
 	{
-		first.Enable();
+		if(CheckpointController.count == 0) return;
+		CheckpointController.first.Enable();
 		racing = false;
+		times.Add(time);
 	}
 
-	public static void AddCheckPoint(Checkpoint c)
+	public static void RespawnPlayer()
 	{
-		last.next = c;
-		last.endIcon.SetActive(false);
-		last.text.gameObject.SetActive(true);
-		c.index = last.index + 1;
-		last = c;
+		Controller.player.transform.position = Controller.spawnpoint.transform.position;
+		Vector2 v = Controller.ToEuler(Controller.spawnpoint.rotation);
+		Controller.playerCamScript.xRotation = v.x;
+		Controller.playerCamScript.yRotation = v.y;
+		Restart();
 	}
 
-	private void Start()
+	private void OnEnable()
 	{
-		foreach (var c in GameObject.FindGameObjectsWithTag("Checkpoint"))
-		{
-			var chk = c.GetComponent<Checkpoint>();
-			if(chk.index == 0)
-			{
-				first = chk;
-			}
-			if(chk.next == null)
-			{
-				last = chk;
-			}
-		}
+		CheckpointController.SetTriggerAll(true);
+		Restart();
 	}
 
 	void Update()
 	{
+		if(Input.GetKeyDown(respawnKey)) {
+			if (Input.GetKey(modiferKey)) {
+				Controller.spawnpoint.position = Controller.player.transform.position;
+				Controller.spawnpoint.rotation = Controller.playerCamObj.transform.rotation;
+			} else {
+				RespawnPlayer();
+			}
+		}
+
+		if (time == -1) {
+			time = 0;
+			Controller.timer.text = "Time: 0.000s";
+		}
+
 		if(!racing) return;
 
 		time += Time.deltaTime;
-		text.text = $"Time: {time:0.000}s";
+		Controller.timer.text = "Time: " + (time >= 60 ? Mathf.FloorToInt(time / 60).ToString() + "m " : "") + $"{time % 60:0.000}s";
 	}
 }

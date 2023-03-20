@@ -22,22 +22,36 @@ class EditorControllerEditor : Editor {
 		Vector3 center = (cam.minBounds + cam.maxBounds) / 2;
 		Vector3 size = cam.maxBounds - cam.minBounds;
 
+		Vector3 newMin = cam.minBounds;
+		Vector3 newMax = cam.minBounds;
+		Vector3 newOff = cam.boundsOffset;
+
 		Handles.DrawWireCube(center + cam.boundsOffset, size);
-		cam.maxBounds.y = Mathf.Max(cam.minBounds.y, Slider(0,new Vector3(center.x, cam.maxBounds.y, center.z), Vector3.up  ).y);
-		cam.minBounds.y = Mathf.Min(cam.maxBounds.y, Slider(1,new Vector3(center.x, cam.minBounds.y, center.z), Vector3.down).y);
 
-		cam.maxBounds.x = Mathf.Max(cam.minBounds.x, Slider(2,new Vector3(cam.maxBounds.x, center.y, center.z), Vector3.right).x);
-		cam.minBounds.x = Mathf.Min(cam.maxBounds.x, Slider(3,new Vector3(cam.minBounds.x, center.y, center.z), Vector3.left ).x);
+		EditorGUI.BeginChangeCheck();
 
-		cam.maxBounds.z = Mathf.Max(cam.minBounds.z, Slider(4,new Vector3(center.x, center.y, cam.maxBounds.z), Vector3.forward).z);
-		cam.minBounds.z = Mathf.Min(cam.maxBounds.z, Slider(5,new Vector3(center.x, center.y, cam.minBounds.z), Vector3.back   ).z);
+		newMax.x = Mathf.Max(cam.minBounds.x, Slider(1, new Vector3(cam.maxBounds.x, center.y, center.z), Vector3.right  ).x);
+		newMax.y = Mathf.Max(cam.minBounds.y, Slider(2, new Vector3(center.x, cam.maxBounds.y, center.z), Vector3.up     ).y);
+		newMax.z = Mathf.Max(cam.minBounds.z, Slider(3, new Vector3(center.x, center.y, cam.maxBounds.z), Vector3.forward).z);
 
-		cam.boundsOffset = Handles.PositionHandle(cam.boundsOffset, Quaternion.identity);
+		newMin.x = Mathf.Min(cam.maxBounds.x, Slider(4, new Vector3(cam.minBounds.x, center.y, center.z), Vector3.left).x);
+		newMin.y = Mathf.Min(cam.maxBounds.y, Slider(5, new Vector3(center.x, cam.minBounds.y, center.z), Vector3.down).y);
+		newMin.z = Mathf.Min(cam.maxBounds.z, Slider(6, new Vector3(center.x, center.y, cam.minBounds.z), Vector3.back).z);
+
+		newOff = Handles.PositionHandle(cam.boundsOffset, Quaternion.identity);
+
+		if (EditorGUI.EndChangeCheck())
+		{
+			Undo.RecordObject(cam, "Change boundary");
+			cam.minBounds = newMin;
+			cam.maxBounds = newMax;
+			cam.boundsOffset = newOff;
+		}
 
 		//Handles.Label(cam.minBounds, "Min");
 		//Handles.Label(cam.maxBounds, "Max");
 
-		if (cam.minBounds.x > cam.maxBounds.x)
+		/*if (cam.minBounds.x > cam.maxBounds.x)
 		{
 			var x = cam.minBounds.x;
 			cam.minBounds.x = cam.maxBounds.x;
@@ -54,6 +68,6 @@ class EditorControllerEditor : Editor {
 			var z = cam.minBounds.z;
 			cam.minBounds.z = cam.maxBounds.z;
 			cam.maxBounds.z = z;
-		}
+		}*/
 	}
 }

@@ -28,6 +28,7 @@ public class PlayerMovement : MonoBehaviour
     public float playerHeight;
     public LayerMask whatIsGround;
     bool grounded;
+    private List<Collider> touching = new List<Collider>();
 
     [Header("Slope Handling")]
     public float maxSlopeAngle;
@@ -58,10 +59,13 @@ public class PlayerMovement : MonoBehaviour
         rb.freezeRotation = true;
     }
 
+    private bool IsTouching(Collider c) => touching.Contains(c);
+
     private void Update()
     {
+        RaycastHit hit;
         // ground check
-        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
+        grounded = Physics.Raycast(transform.position, Vector3.down, out hit, playerHeight * 0.5f + 0.2f, whatIsGround) ? IsTouching(hit.collider) : false;
         MyInput();
         SpeedControl();
         StateHandler();
@@ -88,7 +92,7 @@ public class PlayerMovement : MonoBehaviour
         verticalInput = Input.GetAxisRaw("Vertical");
 
         // when to jump
-        if(Input.GetKey(jumpKey) && readyToJump && grounded)
+        if(Input.GetKeyDown(jumpKey) && readyToJump && grounded)
         {
             airJumps = airJumpsMax;
             readyToJump = false;
@@ -99,7 +103,7 @@ public class PlayerMovement : MonoBehaviour
         }
         
         // when to double jump
-        if(Input.GetKey(jumpKey) && readyToJump && airJumps > 0)
+        if(Input.GetKeyDown(jumpKey) && readyToJump && airJumps > 0)
         {
             airJumps--;
             readyToJump = false;
@@ -209,8 +213,11 @@ public class PlayerMovement : MonoBehaviour
     {
         if(Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
         {
-            float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
-            return angle < maxSlopeAngle && angle != 0;
+            if (IsTouching(slopeHit.collider))
+            {
+                float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+                return angle < maxSlopeAngle && angle != 0;
+            }
         }
 
         return false;
@@ -219,5 +226,25 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 GetSlopeMoveDirection()
     {
         return Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+	{
+        Collider c = collision.collider;
+
+        if (touching.Contains(c))
+            return;
+
+        touching.Add(c);
+	}
+
+	private void OnCollisionExit(Collision collision)
+    {
+        Collider c = collision.collider;
+
+        if (!touching.Contains(c))
+            return;
+
+        touching.Remove(c);
     }
 }
