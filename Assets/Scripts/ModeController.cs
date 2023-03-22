@@ -14,12 +14,6 @@ public class ModeController : MonoBehaviour {
 	public GameMode startMode;
 	public KeyCode toggleModeKey;
 
-	[Header("Edit Mode")]
-	public EditorController editorController;
-
-	[Header("Play Mode")]
-	public RaceController playController;
-
 	private GameMode _mode = GameMode.NONE;
 
 	public void SetMode(GameMode mode)
@@ -31,18 +25,18 @@ public class ModeController : MonoBehaviour {
 		switch (mode)
 		{
 			case GameMode.EDIT:
-				playController.enabled = false;
+				Controller.playController.enabled = false;
 				Controller.playerMovement.enabled = false;
 				Controller.playUI.SetActive(false);
 				Controller.playerCamObj.SetActive(false);
 
-				editorController.enabled = true;
+				Controller.editorController.enabled = true;
 				break;
 
 			case GameMode.PLAY:
-				editorController.enabled = false;
+				Controller.editorController.enabled = false;
 
-				playController.enabled = true;
+				Controller.playController.enabled = true;
 				Controller.playerMovement.enabled = true;
 				Controller.playUI.SetActive(true);
 				Controller.playerCamObj.SetActive(true);

@@ -168,8 +168,6 @@ public class EditorController : MonoBehaviour
 				_dragPlane = new Plane(Vector3.up, hit.point);
 				_pickupOffset = hit.point - _holding.transform.position;
 				_height = _holding.GetHeight().height;
-
-				RaceController.times.Clear();
 			}
 		} else if (Input.GetMouseButtonUp(0) || (_holding && !Input.GetMouseButton(0))) {
 			_holding = null;
@@ -223,6 +221,19 @@ public class EditorController : MonoBehaviour
 		if (Input.GetKeyDown(toggleKey)) {
 			SetFreeCam(true);
 		}
+	}
+
+	public void SaveUnplayed()
+	{
+		Hash128 hash;
+		if (LevelController.RouteExists(out hash)) return;
+
+		RaceController.times.Clear();
+
+		LevelController.levels.lastLevel = LevelController.levelName;
+		LevelController.levels.lastRoute = hash;
+		LevelController.currentLevel[hash] = LevelController.GetRouteData();
+		LevelController.SaveFile();
 	}
 
 	void Update()

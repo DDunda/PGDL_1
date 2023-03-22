@@ -98,19 +98,52 @@ public class LevelController : MonoBehaviour
 	}
 
 	private static string fileName = "routes.json";
-	public string levelName;
+	public string _levelName;
 	public static Levels levels { 
 		get {
-			if (_levels == null) LoadAllRoutes();
+			if (_levels == null) LoadFile();
 			return _levels;
 		}
 	}
+	public static LevelRoutes currentLevel { get => _levels[levelName]; }
 	private static Levels _levels = null;
+	public static string levelName;
 
-	public RouteData GetRouteData()
+	public static Hash128 GetHash()
 	{
-		RouteData d = new()
+		Hash128 hash = CheckpointController.checkpoints.Select(c => c.transform.position).Aggregate(new Hash128(), (a, c) => {
+			a.Append(c.x);
+			a.Append(c.y);
+			a.Append(c.z);
+			return a;
+		});
+
+		PlayerMovement pmov = Controller.playerMovement;
+
+		hash.Append(pmov.walkSpeed);
+		hash.Append(pmov.sprintSpeed);
+		hash.Append(pmov.groundDrag);
+		hash.Append(pmov.jumpForce);
+		hash.Append(pmov.jumpCooldown);
+		hash.Append(pmov.airMultiplier);
+		hash.Append(pmov.airJumpsMax);
+		hash.Append(pmov.maxSlopeAngle);
+
+		return hash;
+	}
+
+	public static bool RouteExists(out Hash128 hash)
+	{
+		hash = GetHash();
+
+		return currentLevel.Contains(hash);
+	}
+
+	public static RouteData GetRouteData()
+	{
+		return new()
 		{
+			hash = GetHash(),
 			checkpoints = (from s in CheckpointController.checkpoints select s.transform.position).ToArray(),
 			spawnpointPos = Controller.spawnpoint.position,
 			spawnpointAngle = Controller.ToEuler(Controller.spawnpoint.rotation),
@@ -129,29 +162,9 @@ public class LevelController : MonoBehaviour
 				maxSlopeAngle = Controller.playerMovement.maxSlopeAngle
 			}
 		};
-
-		Hash128 hash = d.checkpoints.Aggregate(new Hash128(), (a, c) => {
-			a.Append(c.x);
-			a.Append(c.y);
-			a.Append(c.z);
-			return a;
-		});
-
-		hash.Append(d.modifiers.walkSpeed);
-		hash.Append(d.modifiers.sprintSpeed);
-		hash.Append(d.modifiers.groundDrag);
-		hash.Append(d.modifiers.jumpForce);
-		hash.Append(d.modifiers.jumpCooldown);
-		hash.Append(d.modifiers.airMultiplier);
-		hash.Append(d.modifiers.airJumpsMax);
-		hash.Append(d.modifiers.maxSlopeAngle);
-
-		d.hash = hash;
-
-		return d;
 	}
 
-	public void SetRoute(Hash128 hash)
+	public static void SetRoute(Hash128 hash)
 	{
 		foreach(var c in CheckpointController.checkpoints) {
 			Destroy(c.gameObject);
@@ -159,12 +172,10 @@ public class LevelController : MonoBehaviour
 
 		RaceController.times.Clear();
 
-		if (!levels.Contains(levelName))
-			return;
-		if (!levels[levelName].Contains(hash))
+		if (!currentLevel.Contains(hash))
 			return;
 
-		RouteData r = levels[levelName][hash];
+		RouteData r = currentLevel[hash];
 
 		Controller.spawnpoint.position = r.spawnpointPos;
 		Controller.spawnpoint.rotation = Quaternion.Euler(r.spawnpointAngle);
@@ -185,25 +196,26 @@ public class LevelController : MonoBehaviour
 		}
 	}
 
-	public void SaveRoute()
+	public static void SaveRoute()
 	{
-		if(!levels.Contains(levelName)) {
-			levels[levelName] = new() { levelName = levelName };
+		Hash128 hash = GetHash();
+
+		if (!currentLevel.Contains(hash)) {
+			currentLevel[hash] = GetRouteData();
+		} else {
+			currentLevel[hash].bestTimes = RaceController.times.ToArray();
 		}
 
-		RouteData r = GetRouteData();
-		levels[levelName][r.hash] = r;
-
 		levels.lastLevel = levelName;
-		levels.lastRoute = r.hash;
+		levels.lastRoute = hash;
 	}
 
-	public static void SaveAllRoutes()
+	public static void SaveFile()
 	{
 		File.WriteAllText($"{Application.persistentDataPath}/{fileName}", JsonUtility.ToJson(levels));
 	}
 
-	public static void LoadAllRoutes()
+	public static void LoadFile()
 	{
 		if (!File.Exists($"{Application.persistentDataPath}/{fileName}")) {
 			_levels = new();
@@ -214,12 +226,11 @@ public class LevelController : MonoBehaviour
 
 	private void Start()
 	{
-		LoadAllRoutes();
-	}
-
-	private void OnDestroy()
-	{
-		SaveRoute();
-		SaveAllRoutes();
+		levelName = _levelName;
+		LoadFile();
+		if(!levels.Contains(levelName)) {
+			levels[levelName] = new() { levelName = levelName };
+			SaveFile();
+		}
 	}
 }

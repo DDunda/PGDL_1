@@ -18,6 +18,10 @@ public class Controller : MonoBehaviour
 	private static PlayerCam _playerCamScript;
 	private static Camera _freeCam;
 	private static TMPro.TextMeshProUGUI _timer;
+	private static GameObject _modifierUI;
+	private static ModifierController _modifierController;
+	private static EditorController _editorController;
+	private static RaceController _playController;
 
 	// Using these find commands means we have to link less objects in the editor
 	public static GameObject freeCamObj;
@@ -25,14 +29,18 @@ public class Controller : MonoBehaviour
 	public static GameObject playUI;
 	public static LevelController level;
 	public static Transform editorCamPivot => freeCamObj.transform.parent;
-	public static Transform spawnpoint => _spawnpoint = _spawnpoint ?? GameObject.FindGameObjectWithTag("Spawnpoint").transform;
-	public static GameObject player => _player = _player            ?? GameObject.FindGameObjectWithTag("Player");
-	public static Transform playerCheckpointOrigin => _playerCheckpointOrigin = _playerCheckpointOrigin ?? player.transform.Find("CheckpointPosition");
-	public static GameObject playerCamObj => _playerCamObj = _playerCamObj                              ?? player.transform.Find("PlayerCam").gameObject;
-	public static PlayerMovement playerMovement => _playerMovement = _playerMovement     ?? player.GetComponent<PlayerMovement>();
-	public static PlayerCam playerCamScript => _playerCamScript = _playerCamScript ?? playerCamObj.GetComponent<PlayerCam>();
-	public static Camera freeCam => _freeCam = _freeCam                              ?? freeCamObj.GetComponent<Camera>();
-	public static TMPro.TextMeshProUGUI timer => _timer = _timer ?? playUI.transform.Find("Timer").GetComponent<TMPro.TextMeshProUGUI>();
+	public static Transform spawnpoint => _spawnpoint;
+	public static GameObject player => _player;
+	public static Transform playerCheckpointOrigin => _playerCheckpointOrigin;
+	public static GameObject playerCamObj => _playerCamObj;
+	public static PlayerMovement playerMovement => _playerMovement;
+	public static PlayerCam playerCamScript => _playerCamScript;
+	public static Camera freeCam => _freeCam;
+	public static TMPro.TextMeshProUGUI timer => _timer;
+	public static GameObject modifierUI => _modifierUI;
+	public static ModifierController modifierController => _modifierController;
+	public static EditorController editorController => _editorController;
+	public static RaceController playController => _playController;
 
 	public static Vector2 ToEuler(Quaternion @this)
 	{
@@ -49,5 +57,19 @@ public class Controller : MonoBehaviour
 		editorUI = _editorUI;
 		playUI = _playUI;
 		level = _level;
+
+		_modifierController = gameObject.GetComponent<ModifierController>();
+		_editorController = gameObject.GetComponent<EditorController>();
+		_playController = gameObject.GetComponent<RaceController>();
+
+		_spawnpoint = GameObject.FindGameObjectWithTag("Spawnpoint").transform;
+		_player = GameObject.FindGameObjectWithTag("Player");
+		_playerCheckpointOrigin = player.transform.Find("CheckpointPosition");
+		_playerCamObj = player.transform.Find("PlayerCam").gameObject;
+		_playerMovement = player.GetComponent<PlayerMovement>();
+		_playerCamScript = playerCamObj.GetComponent<PlayerCam>();
+		_freeCam = freeCamObj.GetComponent<Camera>();
+		_timer = playUI.transform.Find("Timer").GetComponent<TMPro.TextMeshProUGUI>();
+		_modifierUI = editorUI.transform.Find("ModifierUI").gameObject;
 	}
 }

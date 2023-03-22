@@ -38,6 +38,9 @@ public class RaceController : MonoBehaviour
 		CheckpointController.first.Enable();
 		racing = false;
 		times.Add(time);
+
+		LevelController.SaveRoute();
+		LevelController.SaveFile();
 	}
 
 	public static void RespawnPlayer()
@@ -53,6 +56,12 @@ public class RaceController : MonoBehaviour
 	{
 		CheckpointController.SetTriggerAll(true);
 		Restart();
+
+		times.Clear();
+
+		if (LevelController.RouteExists(out Hash128 hash)) {
+			times.UnionWith(LevelController.currentLevel[hash].bestTimes);
+		}
 	}
 
 	void Update()

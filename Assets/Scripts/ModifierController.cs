@@ -6,9 +6,6 @@ using System;
 
 public class ModifierController : MonoBehaviour
 {
-    public GameObject player;
-    public GameObject modifierUI;
-
     // an enum is probably not the best way to do this, but i don't know what i'm doing!!!! yippee!!!!
     // and it doesn't really matter for a prototype like this anyways
     enum Modifier
@@ -24,27 +21,29 @@ public class ModifierController : MonoBehaviour
     // set the values inside the text field to that of the player's initial values
     void Start()
     {
-        PlayerMovement pMov = player.transform.GetComponent<PlayerMovement>();
+        PlayerMovement pMov = Controller.playerMovement;
+        GameObject modifierUI = Controller.modifierUI;
 
         for (var i = modifierUI.transform.childCount - 1; i >= 0; i--)
         {
-            var field = modifierUI.transform.GetChild(i).GetComponent<TMP_InputField>();
+            var input = modifierUI.transform.GetChild(i).gameObject;
+            var field = input.GetComponent<TMP_InputField>();
 
-            switch (i)
+            switch (input.name)
             {
-                case (int)Modifier.AirJumps:
+                case "AirJumps":
                     field.text = Convert.ToString(pMov.airJumpsMax);
                     break;
-                case (int)Modifier.WalkSpeed:
+                case "WalkSpeed":
                     field.text = Convert.ToString(pMov.walkSpeed);
                     break;
-                case (int)Modifier.SprintSpeed:
+                case "SprintSpeed":
                     field.text = Convert.ToString(pMov.sprintSpeed);
                     break;
-                case (int)Modifier.GroundDrag:
+                case "GroundDrag":
                     field.text = Convert.ToString(pMov.groundDrag);
                     break;
-                case (int)Modifier.JumpForce:
+                case "JumpForce":
                     field.text = Convert.ToString(pMov.jumpForce);
                     break;
                 default:
@@ -55,31 +54,33 @@ public class ModifierController : MonoBehaviour
     }
 
     // Read all values from all text fields, and update the player's parameters accordingly
-    public void UpdateModifiers()
+    public static void UpdateModifiers()
 	{
-        PlayerMovement pMov = player.transform.GetComponent<PlayerMovement>();
+        PlayerMovement pMov = Controller.playerMovement;
+        GameObject modifierUI = Controller.modifierUI;
 
         for (var i = modifierUI.transform.childCount - 1; i >= 0; i--)
 		{
-            var field = modifierUI.transform.GetChild(i).GetComponent<TMP_InputField>();
+            var input = modifierUI.transform.GetChild(i).gameObject;
+            var field = input.GetComponent<TMP_InputField>();
 
             if (int.TryParse(field.text, out int result))
 			{
-                switch (i)
+                switch (input.name)
                 {
-                    case (int)Modifier.AirJumps:
+                    case "AirJumps":
                         pMov.airJumpsMax = result;
                         break;
-                    case (int)Modifier.WalkSpeed:
+                    case "WalkSpeed":
                         pMov.walkSpeed = result;
                         break;
-                    case (int)Modifier.SprintSpeed:
+                    case "SprintSpeed":
                         pMov.sprintSpeed = result;
                         break;
-                    case (int)Modifier.GroundDrag:
+                    case "GroundDrag":
                         pMov.groundDrag = result;
                         break;
-                    case (int)Modifier.JumpForce:
+                    case "JumpForce":
                         pMov.jumpForce = result;
                         break;
                     default:
@@ -93,10 +94,4 @@ public class ModifierController : MonoBehaviour
 			}
 		}
 	}
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
