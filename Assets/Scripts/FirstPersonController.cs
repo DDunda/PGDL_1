@@ -109,10 +109,17 @@ public class FirstPersonController : MonoBehaviour
 
     private void HandleMouseLock()
     {
-        rotationX -= Input.GetAxis("Mouse Y") * lookSpeedY;
-        rotationX = Mathf.Clamp(rotationX, -upperLookLimit, lowerLookLimit);
+        SetAngle(
+            rotationX - Input.GetAxis("Mouse Y") * lookSpeedY,
+            transform.localEulerAngles.y + Input.GetAxis("Mouse X") * lookSpeedX
+        );
+    }
+
+    public void SetAngle(float x, float y)
+    {
+        rotationX = Mathf.Clamp(x, -upperLookLimit, lowerLookLimit);
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
-        transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeedX, 0);
+        transform.rotation = Quaternion.Euler(0, y, 0);
     }
 
     private void HandleJump()

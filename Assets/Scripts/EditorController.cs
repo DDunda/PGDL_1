@@ -226,6 +226,7 @@ public class EditorController : MonoBehaviour
 				Controller.player.transform.position = Controller.spawnpoint.transform.position;
 				Controller.charController.enabled = true;
 				Vector2 v = Controller.ToEuler(Controller.spawnpoint.rotation);
+				Controller.fpController.SetAngle(v.x, v.y);
 			}
 		}
 		if (Input.GetKeyDown(toggleKey)) {
