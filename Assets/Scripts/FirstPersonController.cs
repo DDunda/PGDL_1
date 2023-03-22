@@ -92,18 +92,22 @@ public class FirstPersonController : MonoBehaviour
 
     private void HandleMovementInput()
     {
-        if(characterController.isGrounded)
+        float moveDirectionY = moveDirection.y;
+
+        if (characterController.isGrounded)
         {
             currentInput = new Vector2((IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Vertical"), (IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Horizontal"));
+            moveDirection = (transform.TransformDirection(Vector3.forward) * currentInput.x) + (transform.TransformDirection(Vector3.right) * currentInput.y);
         }
         else if(canMoveInAir) //in air
         {
             //currentInput = new Vector2((IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Vertical"), (IsSprinting ? sprintSpeed : walkSpeed) * Input.GetAxis("Horizontal"));
-            //currentInput = new Vector2((IsSprinting ? sprintSpeed : walkSpeed) * airMultiplier * Input.GetAxis("Vertical"), (IsSprinting ? sprintSpeed : walkSpeed) * airMultiplier * Input.GetAxis("Horizontal"));
+            if (Input.GetAxisRaw("Horizontal") != 0 || Input.GetAxisRaw("Vertical") != 0) {
+                currentInput = new Vector2((IsSprinting ? sprintSpeed : walkSpeed) * airMultiplier * Input.GetAxis("Vertical"), (IsSprinting ? sprintSpeed : walkSpeed) * airMultiplier * Input.GetAxis("Horizontal"));
+                moveDirection = (transform.TransformDirection(Vector3.forward) * currentInput.x) + (transform.TransformDirection(Vector3.right) * currentInput.y);
+            }
         }
 
-        float moveDirectionY = moveDirection.y;
-        moveDirection = (transform .TransformDirection(Vector3.forward) * currentInput.x) + (transform .TransformDirection(Vector3.right) * currentInput.y);
         moveDirection.y = moveDirectionY;
     }
 
