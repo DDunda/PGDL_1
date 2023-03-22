@@ -14,8 +14,8 @@ public class Controller : MonoBehaviour
 	private static GameObject _player;
 	private static Transform _playerCheckpointOrigin;
 	private static GameObject _playerCamObj;
-	private static PlayerMovement _playerMovement;
-	private static PlayerCam _playerCamScript;
+	private static FirstPersonController _fpController;
+	private static CharacterController _charController;
 	private static Camera _freeCam;
 	private static TMPro.TextMeshProUGUI _timer;
 	private static GameObject _modifierUI;
@@ -33,8 +33,8 @@ public class Controller : MonoBehaviour
 	public static GameObject player => _player;
 	public static Transform playerCheckpointOrigin => _playerCheckpointOrigin;
 	public static GameObject playerCamObj => _playerCamObj;
-	public static PlayerMovement playerMovement => _playerMovement;
-	public static PlayerCam playerCamScript => _playerCamScript;
+	public static FirstPersonController fpController => _fpController;
+	public static CharacterController charController => _charController;
 	public static Camera freeCam => _freeCam;
 	public static TMPro.TextMeshProUGUI timer => _timer;
 	public static GameObject modifierUI => _modifierUI;
@@ -66,8 +66,8 @@ public class Controller : MonoBehaviour
 		_player = GameObject.FindGameObjectWithTag("Player");
 		_playerCheckpointOrigin = player.transform.Find("CheckpointPosition");
 		_playerCamObj = player.transform.Find("PlayerCam").gameObject;
-		_playerMovement = player.GetComponent<PlayerMovement>();
-		_playerCamScript = playerCamObj.GetComponent<PlayerCam>();
+		_fpController = player.GetComponent<FirstPersonController>();
+		_charController = player.GetComponent<CharacterController>();
 		_freeCam = freeCamObj.GetComponent<Camera>();
 		_timer = playUI.transform.Find("Timer").GetComponent<TMPro.TextMeshProUGUI>();
 		_modifierUI = editorUI.transform.Find("ModifierUI").gameObject;

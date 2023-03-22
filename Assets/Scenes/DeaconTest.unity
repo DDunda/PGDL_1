@@ -2058,6 +2058,34 @@ PrefabInstance:
       propertyPath: _levelName
       value: Deacon's Test Level
       objectReference: {fileID: 0}
+    - target: {fileID: 3303055286832757807, guid: ae4bdd1374045b449b3e39cb4fecafc9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -13.83
+      objectReference: {fileID: 0}
+    - target: {fileID: 3303055286832757807, guid: ae4bdd1374045b449b3e39cb4fecafc9, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -11.56
+      objectReference: {fileID: 0}
+    - target: {fileID: 3303055286832757807, guid: ae4bdd1374045b449b3e39cb4fecafc9, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9686082
+      objectReference: {fileID: 0}
+    - target: {fileID: 3303055286832757807, guid: ae4bdd1374045b449b3e39cb4fecafc9, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3303055286832757807, guid: ae4bdd1374045b449b3e39cb4fecafc9, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.24859248
+      objectReference: {fileID: 0}
+    - target: {fileID: 3303055286832757807, guid: ae4bdd1374045b449b3e39cb4fecafc9, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3303055286832757807, guid: ae4bdd1374045b449b3e39cb4fecafc9, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -28.788
+      objectReference: {fileID: 0}
     - target: {fileID: 4192375794112243892, guid: ae4bdd1374045b449b3e39cb4fecafc9, type: 3}
       propertyPath: m_Name
       value: Level
@@ -2177,10 +2205,6 @@ PrefabInstance:
     - target: {fileID: 7439965211128882327, guid: ae4bdd1374045b449b3e39cb4fecafc9, type: 3}
       propertyPath: m_LocalPosition.x
       value: -23
-      objectReference: {fileID: 0}
-    - target: {fileID: 8157048991033908835, guid: ae4bdd1374045b449b3e39cb4fecafc9, type: 3}
-      propertyPath: posAccuracy
-      value: 128
       objectReference: {fileID: 0}
     - target: {fileID: 8157048991033908835, guid: ae4bdd1374045b449b3e39cb4fecafc9, type: 3}
       propertyPath: boundsOffset.x

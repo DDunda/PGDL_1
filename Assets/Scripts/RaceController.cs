@@ -45,10 +45,10 @@ public class RaceController : MonoBehaviour
 
 	public static void RespawnPlayer()
 	{
+		Controller.charController.enabled = false;
 		Controller.player.transform.position = Controller.spawnpoint.transform.position;
+		Controller.charController.enabled = true;
 		Vector2 v = Controller.ToEuler(Controller.spawnpoint.rotation);
-		Controller.playerCamScript.xRotation = v.x;
-		Controller.playerCamScript.yRotation = v.y;
 		Restart();
 	}
 

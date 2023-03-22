@@ -87,7 +87,15 @@ public class EditorController : MonoBehaviour
 
 		Controller.freeCamObj.SetActive(enable);
 		Controller.playerCamObj.SetActive(!enable);
-		Controller.playerMovement.enabled = !enable;
+		Controller.fpController.enabled = !enable;
+		Controller.charController.enabled = !enable;
+
+		Cursor.lockState = enable ? CursorLockMode.None : CursorLockMode.Locked;
+		Cursor.visible = enable;
+
+		if(!enable) {
+			EventSystem.current.SetSelectedGameObject(null);
+		}
 	}
 
 	void CamMovement()
@@ -149,8 +157,10 @@ public class EditorController : MonoBehaviour
 		if (EventSystem.current.IsPointerOverGameObject())
 			return;
 
+		bool uiSelected = EventSystem.current.currentSelectedGameObject != null;
+
 		Ray ray = Controller.freeCam.ScreenPointToRay(Input.mousePosition);
-		if (Input.GetKeyDown(deleteKey)) {
+		if (!uiSelected && Input.GetKeyDown(deleteKey)) {
 			if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, checkpointLayer)) {
 				Destroy(hit.transform.gameObject);
 			}
@@ -212,10 +222,10 @@ public class EditorController : MonoBehaviour
 				Controller.spawnpoint.position = Snap(Controller.player.transform.position);
 				Controller.spawnpoint.rotation = Controller.playerCamObj.transform.rotation;
 			} else {
+				Controller.charController.enabled = false;
 				Controller.player.transform.position = Controller.spawnpoint.transform.position;
+				Controller.charController.enabled = true;
 				Vector2 v = Controller.ToEuler(Controller.spawnpoint.rotation);
-				Controller.playerCamScript.xRotation = v.x;
-				Controller.playerCamScript.yRotation = v.y;
 			}
 		}
 		if (Input.GetKeyDown(toggleKey)) {

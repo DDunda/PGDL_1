@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 using UnityEngine;
 using TMPro;
 using System;
@@ -21,30 +22,56 @@ public class ModifierController : MonoBehaviour
     // set the values inside the text field to that of the player's initial values
     void Start()
     {
-        PlayerMovement pMov = Controller.playerMovement;
+        SetModifiers();
+    }
+
+    public static void SetModifiers()
+    {
+        FirstPersonController fpc = Controller.fpController;
         GameObject modifierUI = Controller.modifierUI;
 
-        for (var i = modifierUI.transform.childCount - 1; i >= 0; i--)
-        {
+        for (var i = modifierUI.transform.childCount - 1; i >= 0; i--) {
             var input = modifierUI.transform.GetChild(i).gameObject;
             var field = input.GetComponent<TMP_InputField>();
+            var check = input.GetComponent<UnityEngine.UI.Toggle>();
 
             switch (input.name)
             {
-                case "AirJumps":
-                    field.text = Convert.ToString(pMov.airJumpsMax);
+                case "CanSprint":
+                    check.isOn = fpc.canSprint;
+                    break;
+                case "CanJump":
+                    check.isOn = fpc.canJump;
+                    break;
+                case "SlopeSliding":
+                    check.isOn = fpc.willSlideOnSlopes;
+                    break;
+                case "AirMovement":
+                    check.isOn = fpc.canMoveInAir;
                     break;
                 case "WalkSpeed":
-                    field.text = Convert.ToString(pMov.walkSpeed);
+                    field.text = fpc.walkSpeed.ToString();
                     break;
                 case "SprintSpeed":
-                    field.text = Convert.ToString(pMov.sprintSpeed);
+                    field.text = fpc.sprintSpeed.ToString();
                     break;
-                case "GroundDrag":
-                    field.text = Convert.ToString(pMov.groundDrag);
+                case "SlopeSpeed":
+                    field.text = fpc.slopeSpeed.ToString();
+                    break;
+                case "MaxSlopeAngle":
+                    field.text = Controller.charController.slopeLimit.ToString();
                     break;
                 case "JumpForce":
-                    field.text = Convert.ToString(pMov.jumpForce);
+                    field.text = fpc.jumpForce.ToString();
+                    break;
+                case "AirJumps":
+                    field.text = fpc.airJumpsMax.ToString();
+                    break;
+                case "AirMultiplier":
+                    field.text = fpc.airMultiplier.ToString();
+                    break;
+                case "Gravity":
+                    field.text = fpc.gravity.ToString();
                     break;
                 default:
                     Debug.LogWarning(string.Format("Could not change the text of text field {0}", i));
@@ -56,42 +83,61 @@ public class ModifierController : MonoBehaviour
     // Read all values from all text fields, and update the player's parameters accordingly
     public static void UpdateModifiers()
 	{
-        PlayerMovement pMov = Controller.playerMovement;
+        FirstPersonController pMov = Controller.fpController;
         GameObject modifierUI = Controller.modifierUI;
+
+        EventSystem.current.SetSelectedGameObject(null);
 
         for (var i = modifierUI.transform.childCount - 1; i >= 0; i--)
 		{
             var input = modifierUI.transform.GetChild(i).gameObject;
             var field = input.GetComponent<TMP_InputField>();
+            var check = input.GetComponent<UnityEngine.UI.Toggle>();
 
-            if (int.TryParse(field.text, out int result))
-			{
-                switch (input.name)
-                {
-                    case "AirJumps":
-                        pMov.airJumpsMax = result;
-                        break;
-                    case "WalkSpeed":
-                        pMov.walkSpeed = result;
-                        break;
-                    case "SprintSpeed":
-                        pMov.sprintSpeed = result;
-                        break;
-                    case "GroundDrag":
-                        pMov.groundDrag = result;
-                        break;
-                    case "JumpForce":
-                        pMov.jumpForce = result;
-                        break;
-                    default:
-                        Debug.LogWarning(string.Format("Could not find a variable to change for the modifier of value {0}", i));
-                        break;
-                }
-            } 
-            else
-			{
-                Debug.LogWarning(string.Format("Text field {0} cannot be converted into an integer!", i));
-			}
+            int iresult = int.Parse(field.text);
+            float fresult = float.Parse(field.text);
+
+            switch (input.name) {
+                case "CanSprint":
+                    pMov.canSprint = check.isOn;
+                    break;
+                case "CanJump":
+                    pMov.canJump = check.isOn;
+                    break;
+                case "SlopeSliding":
+                    pMov.willSlideOnSlopes = check.isOn;
+                    break;
+                case "AirMovement":
+                    pMov.canMoveInAir = check.isOn;
+                    break;
+                case "WalkSpeed":
+                    pMov.walkSpeed = fresult;
+                    break;
+                case "SprintSpeed":
+                    pMov.sprintSpeed = fresult;
+                    break;
+                case "SlopeSpeed":
+                    pMov.slopeSpeed = fresult;
+                    break;
+                case "MaxSlopeAngle":
+                    Controller.charController.slopeLimit = fresult;
+                    break;
+                case "JumpForce":
+                    pMov.jumpForce = fresult;
+                    break;
+                case "AirJumps":
+                    pMov.airJumpsMax = iresult;
+                    break;
+                case "AirMultiplier":
+                    pMov.airMultiplier = fresult;
+                    break;
+                case "Gravity":
+                    pMov.gravity = fresult;
+                    break;
+                default:
+                    Debug.LogWarning(string.Format("Could not find a variable to change for the modifier of value {0}", i));
+                    break;
+            }
 		}
 	}
 }

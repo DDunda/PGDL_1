@@ -26,7 +26,6 @@ public class ModeController : MonoBehaviour {
 		{
 			case GameMode.EDIT:
 				Controller.playController.enabled = false;
-				Controller.playerMovement.enabled = false;
 				Controller.playUI.SetActive(false);
 				Controller.playerCamObj.SetActive(false);
 
@@ -36,8 +35,11 @@ public class ModeController : MonoBehaviour {
 			case GameMode.PLAY:
 				Controller.editorController.enabled = false;
 
+				Cursor.lockState = CursorLockMode.Locked;
+				Cursor.visible = false;
 				Controller.playController.enabled = true;
-				Controller.playerMovement.enabled = true;
+				Controller.fpController.enabled = true;
+				Controller.charController.enabled = true;
 				Controller.playUI.SetActive(true);
 				Controller.playerCamObj.SetActive(true);
 				break;

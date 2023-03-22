@@ -98,8 +98,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startMode: 1
   toggleModeKey: 116
-  editorController: {fileID: 5804157554156398534}
-  playController: {fileID: 5804157554156398532}
 --- !u!114 &5804157554156398532
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -146,7 +144,7 @@ MonoBehaviour:
   rot: {x: 0, y: 20}
   distance: 10
   heightIncrement: 0.25
-  posAccuracy: 16
+  posAccuracy: 128
   checkpointLayer:
     serializedVersion: 2
     m_Bits: 6144

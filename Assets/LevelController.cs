@@ -44,15 +44,21 @@ public class LevelController : MonoBehaviour
 	[Serializable]
 	public struct Modifiers
 	{
+		public bool  canSprint;
+		public bool  canJump;
+		public bool  slopeSliding;
+		public bool  airMovement;
+		 
 		public float walkSpeed;
 		public float sprintSpeed;
-		public float groundDrag;
-
+		public float slopeSpeed;
+		 
 		public float jumpForce;
-		public float jumpCooldown;
 		public float airMultiplier;
 		public int airJumpsMax;
 
+		public float gravity;
+		 
 		public float maxSlopeAngle;
 
 	}
@@ -109,6 +115,30 @@ public class LevelController : MonoBehaviour
 	private static Levels _levels = null;
 	public static string levelName;
 
+	public static Modifiers GetModifiers()
+	{
+		var fpc = Controller.fpController;
+
+		return new()
+		{
+			canSprint = fpc.canSprint,
+			canJump = fpc.canJump,
+			slopeSliding = fpc.willSlideOnSlopes,
+			airMovement = fpc.canSprint,
+
+			walkSpeed = fpc.walkSpeed,
+			sprintSpeed = fpc.sprintSpeed,
+			slopeSpeed = fpc.slopeSpeed,
+
+			jumpForce = fpc.jumpForce,
+			airJumpsMax = fpc.airJumpsMax,
+			airMultiplier = fpc.airMultiplier,
+			gravity = fpc.gravity,
+
+			maxSlopeAngle = Controller.charController.slopeLimit
+		};
+	}
+
 	public static Hash128 GetHash()
 	{
 		Hash128 hash = CheckpointController.checkpoints.Select(c => c.transform.position).Aggregate(new Hash128(), (a, c) => {
@@ -118,16 +148,19 @@ public class LevelController : MonoBehaviour
 			return a;
 		});
 
-		PlayerMovement pmov = Controller.playerMovement;
+		Modifiers m = GetModifiers();
 
-		hash.Append(pmov.walkSpeed);
-		hash.Append(pmov.sprintSpeed);
-		hash.Append(pmov.groundDrag);
-		hash.Append(pmov.jumpForce);
-		hash.Append(pmov.jumpCooldown);
-		hash.Append(pmov.airMultiplier);
-		hash.Append(pmov.airJumpsMax);
-		hash.Append(pmov.maxSlopeAngle);
+		int bools = (m.canSprint ? 1 : 0) | (m.canJump ? 2 : 0) | (m.slopeSliding ? 4 : 0) | (m.airMovement ? 8 : 0);
+
+		hash.Append(bools);
+		hash.Append(m.walkSpeed);
+		hash.Append(m.sprintSpeed);
+		hash.Append(m.slopeSpeed);
+		hash.Append(m.jumpForce);
+		hash.Append(m.airJumpsMax);
+		hash.Append(m.airMultiplier);
+		hash.Append(m.gravity);
+		hash.Append(m.maxSlopeAngle);
 
 		return hash;
 	}
@@ -148,19 +181,7 @@ public class LevelController : MonoBehaviour
 			spawnpointPos = Controller.spawnpoint.position,
 			spawnpointAngle = Controller.ToEuler(Controller.spawnpoint.rotation),
 			bestTimes = RaceController.times.ToArray(),
-			modifiers = new()
-			{
-				walkSpeed = Controller.playerMovement.walkSpeed,
-				sprintSpeed = Controller.playerMovement.sprintSpeed,
-				groundDrag = Controller.playerMovement.groundDrag,
-
-				jumpForce = Controller.playerMovement.jumpForce,
-				jumpCooldown = Controller.playerMovement.jumpCooldown,
-				airMultiplier = Controller.playerMovement.airMultiplier,
-				airJumpsMax = Controller.playerMovement.airJumpsMax,
-
-				maxSlopeAngle = Controller.playerMovement.maxSlopeAngle
-			}
+			modifiers = GetModifiers()
 		};
 	}
 
@@ -182,14 +203,19 @@ public class LevelController : MonoBehaviour
 
 		RaceController.times.UnionWith(r.bestTimes);
 
-		Controller.playerMovement.walkSpeed     = r.modifiers.walkSpeed;
-		Controller.playerMovement.sprintSpeed   = r.modifiers.sprintSpeed;
-		Controller.playerMovement.groundDrag    = r.modifiers.groundDrag;
-		Controller.playerMovement.jumpForce     = r.modifiers.jumpForce;
-		Controller.playerMovement.jumpCooldown  = r.modifiers.jumpCooldown;
-		Controller.playerMovement.airMultiplier = r.modifiers.airMultiplier;
-		Controller.playerMovement.airJumpsMax   = r.modifiers.airJumpsMax;
-		Controller.playerMovement.maxSlopeAngle = r.modifiers.maxSlopeAngle;
+		Controller.fpController.canSprint         = r.modifiers.canSprint;
+		Controller.fpController.canJump           = r.modifiers.canJump;
+		Controller.fpController.willSlideOnSlopes = r.modifiers.slopeSliding;
+		Controller.fpController.canMoveInAir      = r.modifiers.airMovement;
+		Controller.fpController.walkSpeed	      = r.modifiers.walkSpeed;
+		Controller.fpController.sprintSpeed	      = r.modifiers.sprintSpeed;
+		Controller.fpController.slopeSpeed	      = r.modifiers.slopeSpeed;
+		Controller.fpController.jumpForce	      = r.modifiers.jumpForce;
+		Controller.fpController.airJumpsMax	      = r.modifiers.airJumpsMax;
+		Controller.fpController.airMultiplier     = r.modifiers.airMultiplier;
+		Controller.fpController.gravity		      = r.modifiers.gravity;
+
+		Controller.charController.slopeLimit      = r.modifiers.maxSlopeAngle;
 
 		foreach (var c in r.checkpoints) {
 			CheckpointController.AppendCheckpoint(c);
