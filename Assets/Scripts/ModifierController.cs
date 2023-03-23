@@ -94,8 +94,8 @@ public class ModifierController : MonoBehaviour
             var field = input.GetComponent<TMP_InputField>();
             var check = input.GetComponent<UnityEngine.UI.Toggle>();
 
-            int iresult = int.Parse(field.text);
-            float fresult = float.Parse(field.text);
+            int iresult = field ? int.Parse(field.text) : 0;
+            float fresult = field ? float.Parse(field.text) : 0;
 
             switch (input.name) {
                 case "CanSprint":
